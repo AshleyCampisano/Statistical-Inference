@@ -1,0 +1,98 @@
+---
+title: "Inferential Data Analysis Course Project - Part 2"
+author: "Ashley Campisano"
+date: "June 9, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+###Part 2: Basic Inferential Data Analysis
+
+#Part 2 of this report is basic inferential data analysis on the "ToothGrowth" data set. This analysis involves comparing guinea tooth growth by supplement and dose level. This analysis assumes that tooth length is a normal distribution and there are no other factors that impact tooth length besides supplement or dosage.
+
+#Load the data
+```{r}
+library(datasets)
+data(ToothGrowth)
+```
+
+#initial exploratory data analysis
+```{r}
+str(ToothGrowth)
+head(ToothGrowth)
+tail(ToothGrowth)
+summary(ToothGrowth)
+```
+
+#plot
+```{r}
+levels(ToothGrowth$supp) <- c("OJ", "Ascorbic Acid")
+library(ggplot2)
+ggplot(ToothGrowth, aes(x=factor(dose), y=len)) + 
+  facet_grid(.~supp) +
+  geom_boxplot(aes(fill = supp)) +
+  labs(title="Guinea pig tooth length by dosage for supplement", 
+       x="Dose",
+       y="Tooth Length")
+```
+
+#Based on the intial boxplots, it appears that for both supplements, when you increase the dosage, guinea pig tooth legnth increases accordingly.
+
+#Use confidence intervals & hypothesis tests to compare tooth growth by supplement and dose
+
+##Hypothesis 1
+
+#It seems that an increase in both supplements (OJ and Ascorbic Acid) result in an increase in tooth length. At .5 and 1 mg, it appears that OJ is more effective than ascorbic acid but at 2mg, it appears that ascorbic acid is more effective than OJ.
+```{r}
+hypothesis_1 <-t.test(len ~ supp, data = ToothGrowth)
+hypothesis_1
+hypothesis_1$conf.int
+hypothesis_1$p.value
+```
+
+#Since the p-value is > .05 and the confidence interval includes zero, the null hypothesis cannot be rejected.
+
+##Hypothesis 2
+
+#A dosage of .5 mg/day of either supplement will result in the same tooth growth
+```{r}
+hypothesis_2<-t.test(len ~ supp, data = subset(t, dose == .5))
+hypothesis_2
+hypothesis_2$conf.int
+hypothesis_2$p.value
+```
+
+#The alternative hypothesis that a dosage of .5 mg/day of either supplement will result in the same tooth growth can be accepted and the null hypothesis rejected. The confidence interval does not include 0 and the p value < .05.
+
+##Hypothesis 3
+
+#A dosage of 1 mg/day of either supplement will result in the same tooth growth
+```{r}
+hypothesis_3<-t.test(len ~ supp, data = subset(t, dose == 1))
+hypothesis_3
+hypothesis_3$conf.int
+hypothesis_3$p.value
+```
+
+#The alternative hypothesis that a dosage of 1 mg/day of either supplement will result in the same tooth growth can be accepted and the null hypothesis rejected. The confidence interval does not include 0 and the p value < .05.
+
+##Hypothesis 4
+
+#A dosage of 2 mg/day of either supplement will result in the same tooth growth
+```{r}
+hypothesis_4<-t.test(len ~ supp, data = subset(t, dose == 2))
+hypothesis_4
+hypothesis_4$conf.int
+hypothesis_4$p.value
+```
+
+#Since the p value is > .05 and the 95% confidence interval includes 0, the null hypothesis cannot be rejected.
+
+##Part 2 Conclusion
+
+#Orange juice helps increase tooth growth more effectively than ascorbic acid for dose at .5 and 1 mg/day. Orange juice and ascorbic acid result in the same tooth growth at 2 mg/day dose. Because of this, we cannot conclude that orange juice is more effective than ascorbic acid for the entire dataset.
+
+
+

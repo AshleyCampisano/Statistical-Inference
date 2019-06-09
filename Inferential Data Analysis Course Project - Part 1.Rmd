@@ -1,0 +1,73 @@
+---
+title: "Inferential Data Analysis Course Project - Part 1"
+author: "Ashley Campisano"
+date: "June 9, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Overview
+#This report is the final course project for the Statistical Inference Coursera class. This report aims to investigate the exponential distribution and compare it to the Central Limit Theorem. Lambda is set at .2 for all simulations in this report. 
+
+##Part 1: Simulation Exercise
+#Part 1 of this report investigates the average distribution of 40 exponentials over a 1000 simulations.
+#For the assumptions made in this report, the seed was set at 123 and are sampling without replacement
+
+```{r}
+set.seed(123)
+lambda = .2
+n= 40
+simulations <- 1:100
+```
+
+#population simulation
+```{r}
+population <- data.frame(x=sapply(simulations, function(x) {mean(rexp(n, lambda))}))
+```
+
+#plot
+```{r}
+ggplot(population, aes(x=x)) + 
+  geom_histogram(aes(y=..count.., fill=..count..)) +
+  labs(title="Histogram for Means of 40 Exponentials for 1000 Simulations", y="Frequency", x="Mean")
+```
+
+#Sample Mean vs Theoretical Mean
+```{r}
+samplemean <- mean(population$x)
+theoreticalmean <- 1/lambda
+cbind(samplemean, theoreticalmean)
+```
+
+#the sample mean is very close to the theoretical mean
+
+#sample mean - 95% Confidence Interval
+```{r}
+t.test(population$x)[4]
+```
+#At 95% confidence, the sample mean is between 4.855697 and 5.144054
+
+#Sample Variance vs Theoretical Variance
+```{r}
+samplevariance <- var(population$x)
+theoreticalvariance <- ((1/lambda)^2)/n
+cbind(samplevariance, theoreticalvariance)
+```
+
+#the sample variance is close to the theoretical variance
+
+#distribution of Sample Mean/Sample Variance vs Theoretical Mean/Theoretical Variance
+```{r}
+ggplot(population, aes(x=x)) +
+  geom_histogram(aes(y=..density.., fill=..density..)) +
+  labs(title="Histogram of Mean of 40 Exponentials for 1000 Simulations", y="Density", x="Mean") + 
+  geom_density(colour="purple") +
+  geom_vline(xintercept=samplemean, colour="yellow", linetype="dotted") +
+  stat_function(fun=dnorm,args=list( mean=1/lambda, sd=sqrt(theoreticalvariance)),color = "yellow") +
+  geom_vline(xintercept=theoreticalmean, colour="yellow", linetype="dotted") 
+```
+
+#Based on the distribution plot, the sample mean for 40 exponentials simulated 1000 times ends up being very close to the theoretical mean for a normal distribution
